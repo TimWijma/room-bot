@@ -1,27 +1,32 @@
-import { sendDiscordNotification } from './discord';
+import { sendDiscordNotification } from "./discord";
+import { getRooms, runRoomApplicationScript } from "./roomspot";
+
 
 async function main() {
-  console.log('Roomspot Bot starting...');
-  
-  const exampleProperty = {
-    description: 'Nice 2-bedroom apartment',
-    price: '$1200/month',
-    location: 'Downtown',
-    url: 'https://example.com/property/123'
-  };
-  
-  await sendDiscordNotification('New property found!', exampleProperty);
+    console.log("Roomspot Bot starting...");
+
+    try {
+        const links = await getRooms();
+
+        console.log("Fetched room links:", links);
+
+        for (const link of links) {
+            await sendDiscordNotification(link);
+        }
+    } catch (error) {
+        console.error("Failed to apply to room:", error);
+    }
 }
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection at:", promise, "reason:", reason);
+    process.exit(1);
 });
 
 // Start the application
 if (require.main === module) {
-  main().catch(console.error);
+    main().catch(console.error);
 }
 
 export { main };
